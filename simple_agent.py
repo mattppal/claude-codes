@@ -102,7 +102,7 @@ if __name__ == "__main__":
         messages = [{"role": "user", "content": user_input}]
 
         while True:
-
+            # TODO: delegate—haiku for simple tasks, opus for complex
             response = client.messages.create(
                 model=ANTHROPIC_MODEL,
                 system=[
