@@ -1,7 +1,7 @@
 import marimo
 
 __generated_with = "0.14.16"
-app = marimo.App(width="medium", app_title="✳ Claude Codes")
+app = marimo.App(width="medium", app_title="✴ Claude Code(s)")
 
 
 @app.cell
@@ -201,6 +201,15 @@ def _(Path, mo):
 
 @app.cell
 def _(Path, subprocess):
+    def restore_broken_file():
+        if Path("broken_file.py").exists():
+            Path("broken_file.py").unlink()
+            (
+                Path("./broken_file.py").write_text(
+                    Path("./public/broken_file.py").read_text()
+                )
+            )
+
     def execute_tool(tool_name: str, tool_input: dict) -> dict:
         """Execute a tool and return structured result with error handling."""
         try:
@@ -286,7 +295,7 @@ def _(Path, subprocess):
                 "is_error": True,
             }
 
-    return (execute_tool,)
+    return (execute_tool, restore_broken_file)
 
 
 @app.cell
@@ -473,8 +482,31 @@ def _(
         try:
             client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
-            # Convert chat messages to Anthropic format
-            anthropic_messages = []
+            # Load and parse prompt
+            prompt_content = Path("./public/instructions.md").read_text()
+
+            system_prompt = prompt_content[
+                prompt_content.find("<role>") + 6 : prompt_content.find("</role>")
+            ].strip()
+
+            instructions_content = prompt_content[
+                prompt_content.find("<thinking_process>") :
+            ].strip()
+
+            # Convert chat messages to Anthropic format with caching structure
+            anthropic_messages = [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": instructions_content,
+                            "cache_control": {"type": "ephemeral"},
+                        }
+                    ],
+                }
+            ]
+
             for msg in messages:
                 anthropic_messages.append(
                     {
@@ -488,19 +520,14 @@ def _(
             while True:
                 response = client.messages.create(
                     model=ANTHROPIC_MODEL,
-                    system=[
-                        {
-                            "type": "text",
-                            "text": Path("./public/instructions.md").read_text(),
-                            "cache_control": {"type": "ephemeral"},
-                        }
-                    ],
+                    system=[{"type": "text", "text": system_prompt}],
                     max_tokens=4096,
+                    temperature=0.2,
                     messages=anthropic_messages,
                     tools=ANTHROPIC_TOOLS,
                 )
 
-                if response.stop_reason in ["tool_use", "end_turn"]:
+                if response.stop_reason in ["tool_use"]:
                     tool_results = []
                     tool_calls = []
                     response_text = ""
