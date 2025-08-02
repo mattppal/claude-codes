@@ -666,7 +666,7 @@ def _(mo):
     1. Implement more robust stop reason handling, retry logic, and try / except blocks
     2. 
     3. Turn our simple agent into a _Multi-agent Architecture_. This might include using Opus as an orchestrator and replacing Sonnet with Haiku for more lightweight tasks.
-    4. 
+    4. Play with [remote code execution](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/code-execution-tool) for a sandboxed approach to code execution.
 
     ## Resources
 

@@ -7,20 +7,16 @@ import anthropic
 
 load_dotenv()
 
-ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL")
+ANTHROPIC_MODEL = "claude-sonnet-4-0"
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
-if not ANTHROPIC_MODEL or not ANTHROPIC_API_KEY:
+if not ANTHROPIC_API_KEY:
     raise ValueError("ANTHROPIC_MODEL and ANTHROPIC_API_KEY must be set")
 
 ANTHROPIC_TOOLS = [
     {"type": "text_editor_20250728", "name": "str_replace_based_edit_tool"},
     {"type": "web_search_20250305", "name": "web_search", "max_uses": 5},
-    {
-        "type": "bash_20250124",
-        "name": "bash",
-        "cache_control": {"type": "ephemeral"},
-    },  # cache tools
+    {"type": "bash_20250124", "name": "bash"},
 ]
 
 
@@ -107,14 +103,13 @@ if __name__ == "__main__":
     # Load and parse prompt
     prompt_content = Path("instructions.md").read_text()
 
-    # Extract role (system prompt)
-    role_start = prompt_content.find("<role>") + 6
-    role_end = prompt_content.find("</role>")
-    system_prompt = prompt_content[role_start:role_end].strip()
+    system_prompt = prompt_content[
+        prompt_content.find("<role>") + 6 : prompt_content.find("</role>")
+    ].strip()
 
-    # Extract everything else (instructions for first user message)
-    instructions_start = prompt_content.find("<thinking_process>")
-    instructions_content = prompt_content[instructions_start:]
+    instructions_content = prompt_content[
+        prompt_content.find("<thinking_process>") :
+    ].strip()
 
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
@@ -170,9 +165,11 @@ if __name__ == "__main__":
                 if tool_calls:
                     print(f"Executing {len(tool_calls)} tool(s)...")
                     for tool_call in tool_calls:
-                        tool_name = tool_call["tool_name"]
-                        tool_use_id = tool_call["tool_use_id"]
-                        tool_input = tool_call["tool_input"]
+                        tool_name, tool_use_id, tool_input = (
+                            tool_call["tool_name"],  # type: ignore
+                            tool_call["tool_use_id"],  # type: ignore
+                            tool_call["tool_input"],  # type: ignore
+                        )
 
                         print(f"Executing tool: {tool_name}")
 
