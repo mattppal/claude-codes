@@ -37,7 +37,7 @@ def _(mo):
     - Search the web
     - Execute bash commands
 
-    This notebook is adapted from the `simple_agent.py` file in the root directory of this project.
+    This notebook is adapted from the `simple_agent.py` file in the root directory of this project. You may find the full source on [Github](https://github.com/mattppal/claude-codes).
     """
     )
 
@@ -296,7 +296,7 @@ def _(Path, subprocess):
                 "is_error": True,
             }
 
-    return (execute_tool, restore_broken_file)
+    return (execute_tool,)
 
 
 @app.cell
@@ -632,9 +632,6 @@ def _(handle_message, input_key, mo):
 
     /// admonition | Heads up
     Marimo does not yet support multiple messages or message streaming for dynamic visualization of tool calls. To visualize, use `uv run simple_agent.py` in your terminal.
-
-    We'll print tool executions below the chat for visualization & the agent will return all tools in the final message.
-
     ///
 
     You may enter your api key in `.env` if run locally, or here if on the web.
