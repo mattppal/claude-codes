@@ -2,6 +2,23 @@
 
 A simple coding agent built with Claude that can view/edit files, search the web, and execute bash commands—all in less than 200 lines of code.
 
+```mermaid
+flowchart TD
+   Start([Start]) --> UserInput[Get User Input]
+   UserInput --> Claude[Send to Claude]
+   Claude --> NeedsTools{Needs Tools?}
+
+   NeedsTools -->|No| ShowResponse[Show Response]
+   NeedsTools -->|Yes| ExecuteTools[Execute Tools]
+
+   ExecuteTools --> SendResults[Send Results to Claude]
+   SendResults --> Claude
+
+   ShowResponse --> UserInput
+
+   ExecuteTools -.-> Tools
+```
+
 ## Quick Start
 
 1. **Create virtual environment and install dependencies**:
