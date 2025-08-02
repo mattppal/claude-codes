@@ -19,7 +19,7 @@ flowchart TD
    ExecuteTools -.-> Tools
 ```
 
-## Quick Start
+## Quick start
 
 1. **Create virtual environment and install dependencies**:
    ```bash
@@ -72,7 +72,7 @@ The agent uses a simple loop:
 
 - `simple_agent.py` - CLI version
 - `notebook.py` - Interactive Marimo notebook with documentation
-- `prompts/code_editor_fix.md` - System prompt and instructions
+- `public/instructions.md` - System prompt and instructions
 
 ## Requirements
 

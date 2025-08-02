@@ -29,7 +29,7 @@ def _(mo):
 
     As it would turn out, all you need for an agent is: an LLM, a loop, and some tools.
 
-    This is a notebook demonstarting how to build a coding agent with web search & code execution in less than 200 lines—the only external dependency being `anthropic`. 
+    This is a notebook demonstrating how to build a coding agent with web search & code execution in less than 200 lines—the only external dependency being `anthropic`. 
 
     Our agent will be able to 
 
@@ -99,7 +99,7 @@ def _(mo):
     }
     ```
 
-    We'll use tools built-in to Claude, which don't require JSON schema definitions, but do have a few other charateristics
+    We'll use tools built-in to Claude, which don't require JSON schema definitions, but do have a few other characteristics
     """
     )
     return
@@ -156,17 +156,18 @@ def _(Path, mo):
 
     We split the prompt in our code and load only the `role` tag, the rest is in the first user message.
 
-    Using [best practices](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices#example-formatting-preferences), for prompts helps with tool execution and reasoning
+    Using [best practices](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices#example-formatting-preferences), for prompts helps with tool execution and reasoning.
 
     ### XML
     We define prompt blocks in XML tags for structure and interpretability by the model.
 
     This is a best practice that I've found useful in my own projects. A nice side effect
-    is that prompts are more human-readible, too.
+    is that prompts are more human-readable, too.
 
     ### Context & role
 
-    We build context around the task and clearly define the role of the agent
+    We build context around the task and clearly define the role of the agent.
+    We include the `role` tag in the system prompt and pass the rest of the prompt as the first user message.
 
     ### Instructions
 
@@ -318,7 +319,7 @@ def _(Path, mo):
     - Using proper try / except logic with detailed logging for the agent
     - Ensuring reasonable timeouts for our bash tool
 
-    For this implementation, we only log errors. You could imagine wrapping these `ifs` with retry logic as suitible for your agent.
+    For this implementation, we only log errors. You could imagine wrapping these `ifs` with retry logic as suitable for your agent.
     """
     )
 
@@ -381,7 +382,7 @@ def _(Path, mo, split_main):
     Next, we handle `stop_reasons`, which is the client's way of communicating why the chat ended.
 
     A best practice is to implement [robust stop reason handling](https://docs.anthropic.com/en/api/handling-stop-reasons).
-    We keep handling short for our demo, but we recommend handlign _all_ possible reasons.
+    We keep handling short for our demo, but we recommend handling _all_ possible reasons.
 
     ### Responses
 
@@ -400,7 +401,7 @@ def _(Path, mo, split_main):
 
     This `while` loop makes another good structure for top-level retries or error handling logic. 
 
-    We simply raise an execption, but you could imagine some number of more complex iterations. 
+    We simply raise an exception, but you could imagine some number of more complex iterations. 
     Messages and tool results are tracked through message blocks, returned to the client.
     """
     )
@@ -434,7 +435,7 @@ def _(mo):
     Our agent is good at:
 
     - Fixing broken files and validating output `"fix broken_file.py"` (or use `/` to run a sample prompt)
-    - Doing research and implementing new calls `"research new techniques in python 3.13 and write a simple file demostrating one"`
+    - Doing research and implementing new calls `"research new techniques in python 3.13 and write a simple file demonstrating one"`
     - Writing novel output `"write me a simple file that splits tips among a group of friends"`
 
     You can interact with the agent below or run `uv run simple_agent.py` in a shell.
