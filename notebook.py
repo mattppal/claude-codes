@@ -1,7 +1,11 @@
 import marimo
 
 __generated_with = "0.14.16"
-app = marimo.App(width="medium", app_title="✴ Claude Code(s)")
+app = marimo.App(
+    width="medium",
+    app_title="Claude Code(s)",
+    html_head_file="head.html",
+)
 
 
 @app.cell
