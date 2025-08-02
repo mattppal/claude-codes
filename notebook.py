@@ -1,11 +1,7 @@
 import marimo
 
 __generated_with = "0.14.16"
-app = marimo.App(
-    width="medium",
-    app_title="Claude Codes",
-    layout_file="layouts/notebook.slides.json",
-)
+app = marimo.App(width="medium", app_title="Claude Codes")
 
 
 @app.cell
@@ -22,26 +18,47 @@ def _():
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(
+    intro_paragraph = mo.md(
         r"""
     # <img src="public/claude.png" style="display: inline; max-height: 50px; margin: 0; border-radius: 0;" /> Claude Code(s)
 
-    There are many coding agents, but how do they work? Surely they're complicated.
+    There are many coding agents, but how do they work? 
 
-    As it would turn out, agents can just be while loops and tool calls.
+    Surely, they must be complicated...
 
-    This is a simple notebook demonstarting how to build a coding agent with web search & testing functionality in less than 200 lines _without_ external frameworks or dependencies. 
+    As it would turn out, all you need for an agent is: an LLM, a loop, and some tools.
+
+    This is a notebook demonstarting how to build a coding agent with web search & testing functionality in less than 200 lines with the only external dependency being `anthropic`. 
 
     Our agent will be able to 
 
-    - View and edit files
+    - View and edit files (Create and modify code)
     - Search the web
-    - Execute bash commands (testing, installation, etc)
-    - Create and modify code
+    - Execute bash commands (Test and run files)
 
     This notebook is adapted from the `simple_agent.py` file in the root directory of this project.
     """
     )
+
+    intro_flowchart = mo.mermaid("""
+    flowchart TD
+        Start([Start]) --> UserInput[Get User Input]
+        UserInput --> Claude[Send to Claude]
+        Claude --> NeedsTools{Needs Tools?}
+    
+        NeedsTools -->|No| ShowResponse[Show Response]
+        NeedsTools -->|Yes| ExecuteTools[Execute Tools]
+    
+        ExecuteTools --> SendResults[Send Results to Claude]
+        SendResults --> Claude
+    
+        ShowResponse --> UserInput
+    
+        ExecuteTools -.-> Tools
+    """)
+
+    mo.hstack([intro_paragraph.style({"max-width": "700px", "overflow-wrap": "normal"}), intro_flowchart], widths=[1,1])
+
     return
 
 
@@ -300,21 +317,15 @@ def _(Path, mo, split_main):
 def _(mo):
     mo.md(
         r"""
-    ### Our agent
+    ### Running the agent
 
-    The agent is good at:
+    Our agent is good at:
 
-    - Fixing broken files and validating output `fix broken_file.py` (or use `/` to run a sample prompt)
-    - Doing research and implementing new calls `research new techniques in python 3.13 and write a simple file demostrating one`
-    - Writing novel output `write me a simple file that splits tips among a group of friends`
+    - Fixing broken files and validating output `"fix broken_file.py"` (or use `/` to run a sample prompt)
+    - Doing research and implementing new calls `"research new techniques in python 3.13 and write a simple file demostrating one"`
+    - Writing novel output `"write me a simple file that splits tips among a group of friends"`
     """
     )
-    return
-
-
-@app.cell
-def _(mo):
-    mo.md(r""" """)
     return
 
 
@@ -512,7 +523,16 @@ def _(Path, mo):
 
 
 @app.cell
-def _():
+def _(mo):
+    mo.md(
+        r"""
+    ## Resources
+
+    - [Anthropic documentation](https://docs.anthropic.com)
+    - [Anthropic Cookbook](https://github.com/anthropics/anthropic-cookbook)
+    - [Marimo docs](https://docs.marimo.io/)
+    """
+    )
     return
 
 
