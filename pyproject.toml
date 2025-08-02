@@ -9,4 +9,5 @@ dependencies = [
     "black>=25.1.0",
     "marimo>=0.14.16",
     "python-dotenv>=1.1.1",
+    "uv>=0.8.4",
 ]
