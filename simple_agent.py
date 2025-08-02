@@ -16,7 +16,11 @@ if not ANTHROPIC_MODEL or not ANTHROPIC_API_KEY:
 ANTHROPIC_TOOLS = [
     {"type": "text_editor_20250728", "name": "str_replace_based_edit_tool"},
     {"type": "web_search_20250305", "name": "web_search", "max_uses": 5},
-    {"type": "bash_20250124", "name": "bash", "cache_control": {"type": "ephemeral"}}, # cache tools
+    {
+        "type": "bash_20250124",
+        "name": "bash",
+        "cache_control": {"type": "ephemeral"},
+    },  # cache tools
 ]
 
 
@@ -38,7 +42,7 @@ def execute_tool(tool_name: str, tool_input: dict) -> dict:
             content = str(tool_input.get("file_text"))
             if not content:
                 return {
-                    "content": "Error: No content provided in file_text parameter",
+                    "content": "Error: No content provided in file_text",
                     "is_error": True,
                 }
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -58,7 +62,7 @@ def execute_tool(tool_name: str, tool_input: dict) -> dict:
             content = path.read_text()
             if old_str not in content:
                 return {
-                    "content": f"Error: String '{old_str}' not found in {path}",
+                    "content": f"Error: Str '{old_str}' not found in {path}",
                     "is_error": True,
                 }
 
@@ -73,7 +77,7 @@ def execute_tool(tool_name: str, tool_input: dict) -> dict:
             print(command)
             if not command:
                 return {
-                    "content": "Error: No command provided in command parameter",
+                    "content": "Error: No input in command",
                     "is_error": True,
                 }
             result = subprocess.run(
@@ -88,9 +92,15 @@ def execute_tool(tool_name: str, tool_input: dict) -> dict:
             output = f"stdout: {result.stdout}\nstderr: {result.stderr}"
             return {"content": output, "is_error": result.returncode != 0}
         else:
-            return {"content": f"Error: Unknown tool '{tool_name}'", "is_error": True}
+            return {
+                "content": f"Error: Unknown tool '{tool_name}'",
+                "is_error": True,
+            }
     except Exception as e:
-        return {"content": f"Error executing {tool_name}: {str(e)}", "is_error": True}
+        return {
+            "content": f"Error executing {tool_name}: {str(e)}",
+            "is_error": True,
+        }
 
 
 if __name__ == "__main__":
@@ -109,14 +119,16 @@ if __name__ == "__main__":
                     {
                         "type": "text",
                         "text": Path("prompts/code_editor_fix.md").read_text(),
-                        "cache_control": {"type": "ephemeral"},  # cache system prompt
+                        # cache system prompt
+                        "cache_control": {"type": "ephemeral"},
                     }
                 ],
                 max_tokens=4096,
                 messages=messages,  # type: ignore
                 tools=ANTHROPIC_TOOLS,  # type: ignore
             )
-            if response.stop_reason in ["tool_use", "end_turn"]: # TODO: stop reason handling
+            # TODO: stop reason handling
+            if response.stop_reason in ["tool_use", "end_turn"]:
                 tool_results = []
                 tool_calls = []
 
