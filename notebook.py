@@ -29,13 +29,13 @@ def _(mo):
 
     As it would turn out, all you need for an agent is: an LLM, a loop, and some tools.
 
-    This is a notebook demonstrating how to build a coding agent with web search & code execution in less than 200 lines—the only external dependency being `anthropic`. 
+    This is a notebook demonstrating how to build a coding agent with web search & code execution in ~200 lines—the only external dependency being `anthropic`. 
 
-    Our agent will be able to 
+    Our agent will be able to:
 
-    - View and edit files (Create and modify code)
+    - View and edit files
     - Search the web
-    - Execute bash commands (Test and run files)
+    - Execute bash commands
 
     This notebook is adapted from the `simple_agent.py` file in the root directory of this project.
     """
@@ -99,7 +99,7 @@ def _(mo):
     }
     ```
 
-    We'll use tools built-in to Claude, which don't require JSON schema definitions, but do have a few other characteristics
+    We'll use tools built-in to Claude, which don't require JSON schema definitions, but do have different characteristics
     """
     )
     return
@@ -111,11 +111,11 @@ def _(mo):
         f"""
     ## Init
 
-    Claude comes with a set of predefined tools that require much shorter definitions: [_Text Editor_](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/text-editor-tool), [_Web Search_](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/web-search-tool), and [_Bash_](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/bash-tool). 
+    Claude comes with predefined tools that require shorter definitions: [text editor](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/text-editor-tool), [web search](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/web-search-tool), and [bash](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/bash-tool). 
 
-    As it would turn out, those are the only tools we'll need for this demonstration. We start with some imports and tool definitions.
+    These are the only tools we need for this demonstration. We start with imports and tool definitions.
 
-    Setting web search `max_uses` to 5 ensures our agent doesn't enter a research loop (this happens to humans, too).
+    Setting web search `max_uses` to 5 prevents research loops.
     """
     )
 
@@ -305,7 +305,7 @@ def _(Path, mo):
     tool_text = mo.md(
         text="""
     ## Handling Tools
-    **An important point:** though we have one server tool (web search) for others we'll still need to execute local operations. 
+    **Important:** We have one server tool (web search), but other tools need local execution. 
 
     This function defines a group of tool actions that we'll give access to our model to execute.
 
@@ -319,7 +319,7 @@ def _(Path, mo):
     - Using proper try / except logic with detailed logging for the agent
     - Ensuring reasonable timeouts for our bash tool
 
-    For this implementation, we only log errors. You could imagine wrapping these `ifs` with retry logic as suitable for your agent.
+    For this implementation, we only log errors. You could add retry logic as needed.
     """
     )
 
@@ -364,7 +364,7 @@ def _(Path, mo, split_main):
     Code in this notebook has been adapted for Marimo.
     ///
 
-    The agent is a nested `While` that handles different cases.
+    The agent uses a `while` loop that handles different cases.
 
     First, we initialize the Anthropic client and pass in our tools.
     The temperature is set to a low value to encourage [concise responses](https://docs.anthropic.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency#2-optimize-prompt-and-output-length).
@@ -373,9 +373,9 @@ def _(Path, mo, split_main):
 
     Prompt caching caches the _full prefix_ up to the cache point in the following order: **tools**, **system**, **messages**.
 
-    That means our cache point caches: the system prompt, tool use, & the first message.
+    That means our cache point caches the system prompt, tools, and first message.
 
-    Since this is sent with every message, we get cost savings during the cache window (5m by default)
+    Since this is sent with every message, we get cost savings during the cache window (5 minutes by default)
 
     ### Stop reasons
 
