@@ -23,6 +23,7 @@ ANTHROPIC_TOOLS = [
 def execute_tool(tool_name: str, tool_input: dict) -> dict:
     """Execute a tool and return structured result with error handling."""
     try:
+        # string replace tools
         if tool_name == "view":
             path = Path(str(tool_input.get("path")))
             if path.is_file():
@@ -68,6 +69,7 @@ def execute_tool(tool_name: str, tool_input: dict) -> dict:
                 "content": f"Replaced '{old_str}' with '{new_str}' in {path}",
                 "is_error": False,
             }
+        # bash tools
         elif tool_name == "bash":
             command = tool_input.get("command")
             print(command)
@@ -115,7 +117,7 @@ if __name__ == "__main__":
 
     while True:
         user_input = input("💬 User: ")
-        # Add instructions as first user message, then user input
+        # Cache everything up to first user message
         messages = [
             {
                 "role": "user",
@@ -143,6 +145,7 @@ if __name__ == "__main__":
                 for block in response.content:
                     if hasattr(block, "text"):
                         print(block.text)
+                    # web search tool
                     if block.type == "server_tool_use":
                         print(f"Searched for: {block.input.get('query')}")
                     if hasattr(block, "citations") and block.citations:
