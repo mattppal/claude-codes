@@ -40,6 +40,8 @@ For each task:
 - Plan your approach before making changes
 - Execute changes systematically
 - Verify results by executing any file you create or edit
+
+Please be concise and direct in your responses.
 </instructions>
 
 <tool_usage_best_practices>

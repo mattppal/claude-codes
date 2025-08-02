@@ -133,6 +133,7 @@ if __name__ == "__main__":
                 model=ANTHROPIC_MODEL,
                 system=[{"type": "text", "text": system_prompt}],
                 max_tokens=4096,
+                temperature=0.2,
                 messages=messages,  # type: ignore
                 tools=ANTHROPIC_TOOLS,  # type: ignore
             )

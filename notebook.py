@@ -108,14 +108,14 @@ def _(mo):
 @app.cell
 def _(mo):
     intro_tool_text = mo.md(
-        """
+        f"""
     ## Init
 
     Claude comes with a set of predefined tools that require much shorter definitions: [_Text Editor_](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/text-editor-tool), [_Web Search_](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/web-search-tool), and [_Bash_](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/bash-tool). 
 
     As it would turn out, those are the only tools we'll need for this demonstration. We start with some imports and tool definitions.
 
-    Setting web search `max_uses` to 5 ensures our agent doesn't enter a research loop (this happens to humans, too)
+    Setting web search `max_uses` to 5 ensures our agent doesn't enter a research loop (this happens to humans, too).
     """
     )
 
@@ -143,26 +143,9 @@ def _(mo):
             ),
         ],
         widths="auto",
+        align="start"
     )
     return
-
-
-@app.cell
-def _(load_dotenv, os):
-    load_dotenv()
-
-    ANTHROPIC_MODEL = "claude-sonnet-4-0"
-    ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-
-    if not ANTHROPIC_API_KEY:
-        raise ValueError("ANTHROPIC_API_KEY must be set")
-
-    ANTHROPIC_TOOLS = [
-        {"type": "text_editor_20250728", "name": "str_replace_based_edit_tool"},
-        {"type": "web_search_20250305", "name": "web_search", "max_uses": 5},
-        {"type": "bash_20250124", "name": "bash"},
-    ]
-    return ANTHROPIC_API_KEY, ANTHROPIC_MODEL, ANTHROPIC_TOOLS
 
 
 @app.cell
@@ -206,10 +189,11 @@ def _(Path, mo):
         [
             mo.md(prompting).style({"max-width": "650px", "overflow-wrap": "normal"}),
             mo.ui.code_editor(value=prompt, language="xml", disabled=True).style(
-                {"max-width": "650px", "overflow-wrap": "normal"}
+                {"max-width": "700px", "overflow-wrap": "normal"}
             ),
         ],
         widths="auto",
+        align="start"
     )
 
     return
@@ -221,6 +205,7 @@ def _(Path, subprocess):
         """Execute a tool and return structured result with error handling."""
         try:
             if tool_name == "view":
+                print(f"Executing: {tool_name}")
                 path = Path(str(tool_input.get("path")))
                 if path.is_file():
                     content = path.read_text()
@@ -234,6 +219,7 @@ def _(Path, subprocess):
                         "is_error": True,
                     }
             elif tool_name == "create":
+                print(f"Executing: {tool_name}")
                 path = Path(str(tool_input.get("path")))
                 content = str(tool_input.get("file_text"))
                 if not content:
@@ -248,10 +234,10 @@ def _(Path, subprocess):
                     "is_error": False,
                 }
             elif tool_name == "str_replace":
+                print(f"Executing: {tool_name}")
                 path = Path(str(tool_input.get("path")))
                 old_str = str(tool_input.get("old_str"))
                 new_str = str(tool_input.get("new_str"))
-
                 if not path.exists():
                     return {
                         "content": f"Error: File {path} does not exist",
@@ -272,8 +258,8 @@ def _(Path, subprocess):
                     "is_error": False,
                 }
             elif tool_name == "bash":
+                print(f"Executing: {tool_name}")
                 command = tool_input.get("command")
-                print(command)
                 if not command:
                     return {
                         "content": "Error: No command provided in command parameter",
@@ -313,12 +299,15 @@ def _(Path, mo):
 
     This function defines a group of tool actions that we'll give access to our model to execute.
 
+    ### `execute_tool`
+
     We accept a `tool_name` and `tool_input`, then route tool requests to the appropriate operation. This provides a nice way to implement error and retry logic close to the tool implementations.
 
     Some best practices when executing tools:
 
     - Adding an `is_error` [property to the response](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/implement-tool-use#troubleshooting-errors), which we can then pass to Claude
     - Using proper try / except logic with detailed logging for the agent
+    - Ensuring reasonable timeouts for our bash tool
 
     For this implementation, we only log errors. You could imagine wrapping these `ifs` with retry logic as suitible for your agent.
     """
@@ -344,10 +333,11 @@ def _(Path, mo):
         [
             tool_text.style({"max-width": "650px", "overflow-wrap": "normal"}),
             mo.ui.code_editor(tool_example, language="python", disabled=True).style(
-                {"max-width": "650px", "overflow-wrap": "normal"}
+                {"max-width": "600px", "overflow-wrap": "normal"}
             ),
         ],
         widths=[1, 0],
+        align="start"
     )
     return (split_main,)
 
@@ -367,6 +357,7 @@ def _(Path, mo, split_main):
     The agent is a nested `While` that handles different cases.
 
     First, we initialize the Anthropic client and pass in our tools.
+    The temperature is set to a low value to encourage [concise responses](https://docs.anthropic.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency#2-optimize-prompt-and-output-length).
 
     ### Caching
 
@@ -416,9 +407,10 @@ def _(Path, mo, split_main):
             agent_text.style({"max-width": "650px"}),
             mo.ui.code_editor(
                 value=agent, language="python", disabled=True, show_copy_button=True
-            ).style({"max-width": "650"}),
+            ).style(max_width="600px", overflow="auto")
         ],
         widths=[1, 1],
+        align="start"
     )
 
     return
@@ -435,9 +427,33 @@ def _(mo):
     - Fixing broken files and validating output `"fix broken_file.py"` (or use `/` to run a sample prompt)
     - Doing research and implementing new calls `"research new techniques in python 3.13 and write a simple file demostrating one"`
     - Writing novel output `"write me a simple file that splits tips among a group of friends"`
+
+    You can interact with the agent below or run `uv run simple_agent.py` in a shell.
     """
     )
     return
+
+
+@app.cell
+def _(load_dotenv, mo):
+    load_dotenv()
+
+    input_key = mo.ui.text(label="Anthropic API key", kind="password")
+
+    ANTHROPIC_MODEL = "claude-sonnet-4-0"
+
+    ANTHROPIC_TOOLS = [
+        {"type": "text_editor_20250728", "name": "str_replace_based_edit_tool"},
+        {"type": "web_search_20250305", "name": "web_search", "max_uses": 5},
+        {"type": "bash_20250124", "name": "bash"},
+    ]
+    return ANTHROPIC_MODEL, ANTHROPIC_TOOLS, input_key
+
+
+@app.cell
+def _(input_key, os):
+    ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY") or input_key.value
+    return (ANTHROPIC_API_KEY,)
 
 
 @app.cell(hide_code=True)
@@ -580,16 +596,20 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(handle_message, mo):
+def _(handle_message, input_key, mo):
     chat_text = mo.md(
         """
     ## Let's Chat
     We can implement a modified version for Marimo notebooks that returns the full output in a chat interface, with progressive tool execution updates
 
     /// admonition | Heads up
-    Marimo does not yet support multiple messages or message streaming for dynamic visualization of tool calls. To visualize, use `uv run simple_agent.py` in your terminal
+    Marimo does not yet support multiple messages or message streaming for dynamic visualization of tool calls. To visualize, use `uv run simple_agent.py` in your terminal.
+
+    We'll print tool executions below the chat for visualization & the agent will return all tools in the final message.
 
     ///
+
+    You may enter your api key in `.env` if run locally, or here if on the web.
     """
     )
 
@@ -607,6 +627,7 @@ def _(handle_message, mo):
     mo.vstack(
         [
             chat_text.style({"max-width": "650", "overflow-wrap": "normal"}),
+            input_key,
             chat.style({"max-width": "650", "overflow-wrap": "normal"}),
         ]
     )
@@ -645,9 +666,7 @@ def _(Path, mo):
         f"""
     ## File Cleanup
 
-    This will remove all `.py` files in the root directory except:
-    - `notebook.py` 
-    - `simple_agent.py`
+    This will remove all `.py` files in the root directory except: `notebook.py` & `simple_agent.py`
 
     Then copy `public/broken_file.py` to the root directory.
 
@@ -664,9 +683,11 @@ def _(mo):
     ## Next steps
 
     1. Implement more robust stop reason handling, retry logic, and try / except blocks
-    2. 
-    3. Turn our simple agent into a _Multi-agent Architecture_. This might include using Opus as an orchestrator and replacing Sonnet with Haiku for more lightweight tasks.
-    4. Play with [remote code execution](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/code-execution-tool) for a sandboxed approach to code execution.
+    2. Implement streaming for more responsive messages
+    3. Turn our simple agent into a [_Multi-agent Architecture_](https://www.anthropic.com/engineering/built-multi-agent-research-system) with Opus as an orchestrator and Haiku for lightweight tasks
+    4. Play with [remote code execution](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/code-execution-tool) for a sandboxed approach
+    5. [Reduce latency](https://docs.anthropic.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-latency) in our responses
+    6. Continue exploring optimization techniques
 
     ## Resources
 
