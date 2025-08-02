@@ -20,6 +20,16 @@ ANTHROPIC_TOOLS = [
 ]
 
 
+def restore_broken_file():
+    if Path("broken_file.py").exists():
+        Path("broken_file.py").unlink()
+        (
+            Path("./broken_file.py").write_text(
+                Path("./public/broken_file.py").read_text()
+            )
+        )
+
+
 def execute_tool(tool_name: str, tool_input: dict) -> dict:
     """Execute a tool and return structured result with error handling."""
     try:
@@ -102,8 +112,9 @@ def execute_tool(tool_name: str, tool_input: dict) -> dict:
 
 
 if __name__ == "__main__":
+    restore_broken_file()
     # Load and parse prompt
-    prompt_content = Path("instructions.md").read_text()
+    prompt_content = Path("./public/instructions.md").read_text()
 
     system_prompt = prompt_content[
         prompt_content.find("<role>") + 6 : prompt_content.find("</role>")
@@ -121,8 +132,13 @@ if __name__ == "__main__":
         messages = [
             {
                 "role": "user",
-                "content": instructions_content,
-                "cache_control": {"type": "ephemeral"},
+                "content": [
+                    {
+                        "type": "text",
+                        "text": instructions_content,
+                        "cache_control": {"type": "ephemeral"},
+                    }
+                ],
             },
             {"role": "user", "content": user_input},
         ]
@@ -138,7 +154,7 @@ if __name__ == "__main__":
                 tools=ANTHROPIC_TOOLS,  # type: ignore
             )
             # TODO: stop reason handling
-            if response.stop_reason in ["tool_use", "end_turn"]:
+            if response.stop_reason in ["tool_use"]:
                 tool_results = []
                 tool_calls = []
 
@@ -202,5 +218,9 @@ if __name__ == "__main__":
 
                 continue
             else:
-                print(response.stop_reason)
-                break
+                # Handle non-tool responses
+                for block in response.content:
+                    if hasattr(block, "text"):
+                        print(block.text)
+                if response.stop_reason in ["end_turn"]:
+                    user_input = input("💬 User: ")

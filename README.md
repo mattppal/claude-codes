@@ -1,6 +1,6 @@
 # Coding Agent
 
-A simple coding agent built with Claude that can view/edit files, search the web, and execute bash commands—all in less than 200 lines of code.
+A simple coding agent built with Claude that can view/edit files, search the web, and execute bash commands—all in ~200 lines.
 
 ```mermaid
 flowchart TD

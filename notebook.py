@@ -143,7 +143,7 @@ def _(mo):
             ),
         ],
         widths="auto",
-        align="start"
+        align="start",
     )
     return
 
@@ -184,7 +184,7 @@ def _(Path, mo):
 
     By default, parallel tool use is enabled, but [explicit prompts](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/implement-tool-use#maximizing-parallel-tool-use) can maximize parallel use.
     """
-    prompt = Path("instructions.md").read_text()
+    prompt = Path("./public/instructions.md").read_text()
     mo.hstack(
         [
             mo.md(prompting).style({"max-width": "650px", "overflow-wrap": "normal"}),
@@ -193,7 +193,7 @@ def _(Path, mo):
             ),
         ],
         widths="auto",
-        align="start"
+        align="start",
     )
 
     return
@@ -337,7 +337,7 @@ def _(Path, mo):
             ),
         ],
         widths=[1, 0],
-        align="start"
+        align="start",
     )
     return (split_main,)
 
@@ -407,10 +407,10 @@ def _(Path, mo, split_main):
             agent_text.style({"max-width": "650px"}),
             mo.ui.code_editor(
                 value=agent, language="python", disabled=True, show_copy_button=True
-            ).style(max_width="600px", overflow="auto")
+            ).style(max_width="600px", overflow="auto"),
         ],
         widths=[1, 1],
-        align="start"
+        align="start",
     )
 
     return
@@ -491,7 +491,7 @@ def _(
                     system=[
                         {
                             "type": "text",
-                            "text": Path("instructions.md").read_text(),
+                            "text": Path("./public/instructions.md").read_text(),
                             "cache_control": {"type": "ephemeral"},
                         }
                     ],
