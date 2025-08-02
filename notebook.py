@@ -13,6 +13,7 @@ def _():
     from dotenv import load_dotenv
 
     import anthropic
+
     return Path, anthropic, load_dotenv, mo, os, subprocess
 
 
@@ -40,7 +41,8 @@ def _(mo):
     """
     )
 
-    intro_flowchart = mo.mermaid("""
+    intro_flowchart = mo.mermaid(
+        """
     flowchart TD
         Start([Start]) --> UserInput[Get User Input]
         UserInput --> Claude[Send to Claude]
@@ -55,9 +57,16 @@ def _(mo):
         ShowResponse --> UserInput
 
         ExecuteTools -.-> Tools
-    """)
+    """
+    )
 
-    mo.hstack([intro_paragraph.style({"max-width": "750px", "overflow-wrap": "normal"}), intro_flowchart], widths=[1.25,1])
+    mo.hstack(
+        [
+            intro_paragraph.style({"max-width": "750px", "overflow-wrap": "normal"}),
+            intro_flowchart,
+        ],
+        widths=[1.25, 1],
+    )
 
     return
 
@@ -98,7 +107,8 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    intro_tool_text = mo.md("""
+    intro_tool_text = mo.md(
+        """
     ## Init
 
     Claude comes with a set of predefined tools that require much shorter definitions: [_Text Editor_](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/text-editor-tool), [_Web Search_](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/web-search-tool), and [_Bash_](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/bash-tool). 
@@ -106,7 +116,8 @@ def _(mo):
     As it would turn out, those are the only tools we'll need for this demonstration. We start with some imports and tool definitions.
 
     Setting web search `max_uses` to 5 ensures our agent doesn't enter a research loop (this happens to humans, too)
-    """)
+    """
+    )
 
     imports_code = """
     load_dotenv()
@@ -124,7 +135,15 @@ def _(mo):
     ]
     """
 
-    mo.hstack([intro_tool_text.style({"max-width": "650px", "overflow-wrap": "normal"}), mo.ui.code_editor(imports_code, disabled=True).style({"max-width": "650px", "overflow-wrap": "normal"})], widths="auto")
+    mo.hstack(
+        [
+            intro_tool_text.style({"max-width": "650px", "overflow-wrap": "normal"}),
+            mo.ui.code_editor(imports_code, disabled=True).style(
+                {"max-width": "650px", "overflow-wrap": "normal"}
+            ),
+        ],
+        widths="auto",
+    )
     return
 
 
@@ -164,7 +183,7 @@ def _(Path, mo):
 
     ### Context & role
 
-    We build context around the task and clearly define the role of the agent, 
+    We build context around the task and clearly define the role of the agent
 
     ### Instructions
 
@@ -182,14 +201,16 @@ def _(Path, mo):
 
     By default, parallel tool use is enabled, but [explicit prompts](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/implement-tool-use#maximizing-parallel-tool-use) can maximize parallel use.
     """
-    prompt = Path("prompts/code_editor_fix.md").read_text()
+    prompt = Path("instructions.md").read_text()
     mo.hstack(
-            [
+        [
             mo.md(prompting).style({"max-width": "650px", "overflow-wrap": "normal"}),
-                mo.ui.code_editor(value=prompt, language="xml", disabled=True).style({"max-width": "650px", "overflow-wrap": "normal"}),
-            ],
-        widths="auto"
-        )
+            mo.ui.code_editor(value=prompt, language="xml", disabled=True).style(
+                {"max-width": "650px", "overflow-wrap": "normal"}
+            ),
+        ],
+        widths="auto",
+    )
 
     return
 
@@ -208,7 +229,10 @@ def _(Path, subprocess):
                     content = "\n".join(sorted([f.name for f in path.iterdir()]))
                     return {"content": content, "is_error": False}
                 else:
-                    return {"content": f"Error: {path} does not exist", "is_error": True}
+                    return {
+                        "content": f"Error: {path} does not exist",
+                        "is_error": True,
+                    }
             elif tool_name == "create":
                 path = Path(str(tool_input.get("path")))
                 content = str(tool_input.get("file_text"))
@@ -219,7 +243,10 @@ def _(Path, subprocess):
                     }
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(content)
-                return {"content": f"File {path} written successfully", "is_error": False}
+                return {
+                    "content": f"File {path} written successfully",
+                    "is_error": False,
+                }
             elif tool_name == "str_replace":
                 path = Path(str(tool_input.get("path")))
                 old_str = str(tool_input.get("old_str"))
@@ -263,21 +290,28 @@ def _(Path, subprocess):
                 output = f"stdout: {result.stdout}\nstderr: {result.stderr}"
                 return {"content": output, "is_error": result.returncode != 0}
             else:
-                return {"content": f"Error: Unknown tool '{tool_name}'", "is_error": True}
+                return {
+                    "content": f"Error: Unknown tool '{tool_name}'",
+                    "is_error": True,
+                }
         except Exception as e:
-            return {"content": f"Error executing {tool_name}: {str(e)}", "is_error": True}
+            return {
+                "content": f"Error executing {tool_name}: {str(e)}",
+                "is_error": True,
+            }
+
     return (execute_tool,)
 
 
 @app.cell
 def _(Path, mo):
 
-
-    tool_text = mo.md(text="""
+    tool_text = mo.md(
+        text="""
     ## Handling Tools
-    An important point: though these tools handle things on the server, we'll still need to make the edits and take action on our machines ourselves. 
+    **An important point:** though we have one server tool (web search) for others we'll still need to execute local operations. 
 
-    A good way to do this is define an `execute_tool` helper that handles the routing for various local operations. 
+    This function defines a group of tool actions that we'll give access to our model to execute.
 
     We accept a `tool_name` and `tool_input`, then route tool requests to the appropriate operation. This provides a nice way to implement error and retry logic close to the tool implementations.
 
@@ -287,39 +321,60 @@ def _(Path, mo):
     - Using proper try / except logic with detailed logging for the agent
 
     For this implementation, we only log errors. You could imagine wrapping these `ifs` with retry logic as suitible for your agent.
-    """)
+    """
+    )
 
-    split_tool_example = """def execute_tool(tool_name: str, tool_input: dict) -> dict:"""
+    split_tool_example = (
+        """def execute_tool(tool_name: str, tool_input: dict) -> dict:"""
+    )
     split_main = """if __name__ == "__main__":"""
 
-    tool_example = split_tool_example + "\n\n" + Path("simple_agent.py").read_text().split(split_tool_example)[1].strip().split(split_main)[0].strip()
+    tool_example = (
+        split_tool_example
+        + "\n\n"
+        + Path("simple_agent.py")
+        .read_text()
+        .split(split_tool_example)[1]
+        .strip()
+        .split(split_main)[0]
+        .strip()
+    )
 
-    mo.hstack([tool_text.style({"max-width": "650px", "overflow-wrap": "normal"}), mo.ui.code_editor(tool_example, language='python', disabled=True).style({"max-width": "650px", "overflow-wrap": "normal"}),], widths=[1,0])
+    mo.hstack(
+        [
+            tool_text.style({"max-width": "650px", "overflow-wrap": "normal"}),
+            mo.ui.code_editor(tool_example, language="python", disabled=True).style(
+                {"max-width": "650px", "overflow-wrap": "normal"}
+            ),
+        ],
+        widths=[1, 0],
+    )
     return (split_main,)
 
 
 @app.cell
 def _(Path, mo, split_main):
-    agent_text = mo.md("""
+    agent_text = mo.md(
+        """
     ## Building an agent
     Now, we'll take a look at our agent:
 
     /// admonition | Heads up
-    This code is used for the CLI, which is simpler and easier to follow.
-    Code in this notebook has been adapted for Marimo chat.
+    We'll inspect code from `simple_agent.py`, which is simpler and easier to follow.
+    Code in this notebook has been adapted for Marimo.
     ///
 
     The agent is a nested `While` that handles different cases.
 
-    First, we initialize the anthropic client. It's important to note that we're caching the system prompt & first message, which is quite long. 
-
-    Since this is sent with every message, we get cost savings during the cache window (5m by default)
+    First, we initialize the Anthropic client and pass in our tools.
 
     ### Caching
 
     Prompt caching caches the _full prefix_ up to the cache point in the following order: **tools**, **system**, **messages**.
 
     That means our cache point caches: the system prompt, tool use, & the first message.
+
+    Since this is sent with every message, we get cost savings during the cache window (5m by default)
 
     ### Stop reasons
 
@@ -347,15 +402,24 @@ def _(Path, mo, split_main):
 
     We simply raise an execption, but you could imagine some number of more complex iterations. 
     Messages and tool results are tracked through message blocks, returned to the client.
-    """)
+    """
+    )
 
+    agent = (
+        split_main
+        + "\n\n"
+        + Path("simple_agent.py").read_text().split(split_main)[1].strip()
+    )
 
-    agent = split_main + "\n\n" + Path("simple_agent.py").read_text().split(split_main)[1].strip()
-
-
-
-    mo.hstack([agent_text.style({"max-width": "650px"}), mo.ui.code_editor(value=agent, language="python", disabled=True, show_copy_button=True).style({"max-width": "650"}),], widths=[1,1])
-
+    mo.hstack(
+        [
+            agent_text.style({"max-width": "650px"}),
+            mo.ui.code_editor(
+                value=agent, language="python", disabled=True, show_copy_button=True
+            ).style({"max-width": "650"}),
+        ],
+        widths=[1, 1],
+    )
 
     return
 
@@ -364,7 +428,7 @@ def _(Path, mo, split_main):
 def _(mo):
     mo.md(
         r"""
-    ### Running the agent
+    ## Running our agent
 
     Our agent is good at:
 
@@ -396,10 +460,12 @@ def _(
             # Convert chat messages to Anthropic format
             anthropic_messages = []
             for msg in messages:
-                anthropic_messages.append({
-                    "role": "user" if msg.role == "user" else "assistant",
-                    "content": msg.content
-                })
+                anthropic_messages.append(
+                    {
+                        "role": "user" if msg.role == "user" else "assistant",
+                        "content": msg.content,
+                    }
+                )
 
             accumulated_output = ""
 
@@ -409,7 +475,7 @@ def _(
                     system=[
                         {
                             "type": "text",
-                            "text": Path("prompts/code_editor_fix.md").read_text(),
+                            "text": Path("instructions.md").read_text(),
                             "cache_control": {"type": "ephemeral"},
                         }
                     ],
@@ -428,10 +494,14 @@ def _(
                         if hasattr(block, "text"):
                             response_text += block.text
                         if block.type == "server_tool_use":
-                            search_text = f"\n**Searched for:** {block.input.get('query')}\n\n"
+                            search_text = (
+                                f"\n**Searched for:** {block.input.get('query')}\n\n"
+                            )
                             response_text += search_text
                         if hasattr(block, "citations") and block.citations:
-                            citation_text = f"**Cited sources:** {len(block.citations)}\n\n"
+                            citation_text = (
+                                f"**Cited sources:** {len(block.citations)}\n\n"
+                            )
                             response_text += citation_text
                         if block.type == "tool_use":
                             if block.name == "bash":
@@ -439,15 +509,19 @@ def _(
                             elif block.name == "str_replace_based_edit_tool":
                                 tool_name = block.input.get("command", None)
 
-                            tool_calls.append({
-                                "tool_name": tool_name,
-                                "tool_use_id": block.id,
-                                "tool_input": block.input,
-                            })
+                            tool_calls.append(
+                                {
+                                    "tool_name": tool_name,
+                                    "tool_use_id": block.id,
+                                    "tool_input": block.input,
+                                }
+                            )
 
                     # Second pass: execute all tools
                     if tool_calls:
-                        response_text += f"\n**Executing {len(tool_calls)} tool(s)...**\n\n"
+                        response_text += (
+                            f"\n**Executing {len(tool_calls)} tool(s)...**\n\n"
+                        )
                         for tool_call in tool_calls:
                             tool_name = tool_call["tool_name"]
                             tool_use_id = tool_call["tool_use_id"]
@@ -470,16 +544,20 @@ def _(
 
                             tool_results.append(tool_result)
 
-                    anthropic_messages.append({
-                        "role": "assistant",
-                        "content": [block for block in response.content],
-                    })
+                    anthropic_messages.append(
+                        {
+                            "role": "assistant",
+                            "content": [block for block in response.content],
+                        }
+                    )
 
                     # Accumulate this iteration's output
                     accumulated_output += response_text
 
                     if tool_results:
-                        anthropic_messages.append({"role": "user", "content": tool_results})
+                        anthropic_messages.append(
+                            {"role": "user", "content": tool_results}
+                        )
                         continue
                     else:
                         return accumulated_output or "Task completed."
@@ -497,19 +575,23 @@ def _(
 
         except Exception as e:
             return f"Error: {str(e)}"
+
     return (handle_message,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(handle_message, mo):
-    chat_text = mo.md("""
+    chat_text = mo.md(
+        """
+    ## Let's Chat
     We can implement a modified version for Marimo notebooks that returns the full output in a chat interface, with progressive tool execution updates
 
     /// admonition | Heads up
     Marimo does not yet support multiple messages or message streaming for dynamic visualization of tool calls. To visualize, use `uv run simple_agent.py` in your terminal
 
     ///
-    """)
+    """
+    )
 
     chat = mo.ui.chat(
         handle_message,
@@ -519,14 +601,19 @@ def _(handle_message, mo):
             "Research new features in python 3.13 and write a very simple file demonstrating one",
         ],
         show_configuration_controls=False,
-        allow_attachments=False
+        allow_attachments=False,
     )
 
-    mo.vstack([chat_text.style({"max-width": "650", "overflow-wrap": "normal"}), chat.style({"max-width": "650", "overflow-wrap": "normal"})])
+    mo.vstack(
+        [
+            chat_text.style({"max-width": "650", "overflow-wrap": "normal"}),
+            chat.style({"max-width": "650", "overflow-wrap": "normal"}),
+        ]
+    )
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(Path, mo):
     # Cleanup cell: Remove all Python files except notebook.py and simple_agent.py
     # Then copy broken_file.py from prompts to root
@@ -541,7 +628,7 @@ def _(Path, mo):
                 print(f"Removed: {py_file.name}")
 
         # Copy broken_file.py from prompts to root
-        broken_file_source = Path("prompts/broken_file.py")
+        broken_file_source = Path("public/broken_file.py")
         broken_file_dest = Path("broken_file.py")
 
         if broken_file_source.exists():
@@ -551,21 +638,22 @@ def _(Path, mo):
             print(f"Warning: {broken_file_source} not found")
 
     cleanup_button = mo.ui.button(
-        label="🧹 Cleanup Python Files", 
-        on_click=lambda _: cleanup_files()
+        label="🧹 Cleanup Python Files", on_click=lambda _: cleanup_files()
     )
 
-    mo.md(f"""
-    **File Cleanup**
+    mo.md(
+        f"""
+    ## File Cleanup
 
     This will remove all `.py` files in the root directory except:
     - `notebook.py` 
     - `simple_agent.py`
 
-    Then copy `prompts/broken_file.py` to the root directory.
+    Then copy `public/broken_file.py` to the root directory.
 
     {cleanup_button}
-    """)
+    """
+    )
     return
 
 
@@ -573,6 +661,13 @@ def _(Path, mo):
 def _(mo):
     mo.md(
         r"""
+    ## Next steps
+
+    1. Implement more robust stop reason handling, retry logic, and try / except blocks
+    2. 
+    3. Turn our simple agent into a _Multi-agent Architecture_. This might include using Opus as an orchestrator and replacing Sonnet with Haiku for more lightweight tasks.
+    4. 
+
     ## Resources
 
     - [Anthropic documentation](https://docs.anthropic.com)

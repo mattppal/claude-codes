@@ -105,7 +105,7 @@ def execute_tool(tool_name: str, tool_input: dict) -> dict:
 
 if __name__ == "__main__":
     # Load and parse prompt
-    prompt_content = Path("prompts/code_editor_fix.md").read_text()
+    prompt_content = Path("instructions.md").read_text()
 
     # Extract role (system prompt)
     role_start = prompt_content.find("<role>") + 6
