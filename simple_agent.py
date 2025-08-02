@@ -104,25 +104,37 @@ def execute_tool(tool_name: str, tool_input: dict) -> dict:
 
 
 if __name__ == "__main__":
+    # Load and parse prompt
+    prompt_content = Path("prompts/code_editor_fix.md").read_text()
+
+    # Extract role (system prompt)
+    role_start = prompt_content.find("<role>") + 6
+    role_end = prompt_content.find("</role>")
+    system_prompt = prompt_content[role_start:role_end].strip()
+
+    # Extract everything else (instructions for first user message)
+    instructions_start = prompt_content.find("<thinking_process>")
+    instructions_content = prompt_content[instructions_start:]
 
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
     while True:
         user_input = input("💬 User: ")
-        messages = [{"role": "user", "content": user_input}]
+        # Add instructions as first user message, then user input
+        messages = [
+            {
+                "role": "user",
+                "content": instructions_content,
+                "cache_control": {"type": "ephemeral"},
+            },
+            {"role": "user", "content": user_input},
+        ]
 
         while True:
             # TODO: delegate—haiku for simple tasks, opus for complex
             response = client.messages.create(
                 model=ANTHROPIC_MODEL,
-                system=[
-                    {
-                        "type": "text",
-                        "text": Path("prompts/code_editor_fix.md").read_text(),
-                        # cache system prompt
-                        "cache_control": {"type": "ephemeral"},
-                    }
-                ],
+                system=[{"type": "text", "text": system_prompt}],
                 max_tokens=4096,
                 messages=messages,  # type: ignore
                 tools=ANTHROPIC_TOOLS,  # type: ignore

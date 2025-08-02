@@ -1,7 +1,7 @@
 import marimo
 
 __generated_with = "0.14.16"
-app = marimo.App(width="medium", app_title="Claude Codes")
+app = marimo.App(width="medium", app_title="✳ Claude Codes")
 
 
 @app.cell
@@ -28,7 +28,7 @@ def _(mo):
 
     As it would turn out, all you need for an agent is: an LLM, a loop, and some tools.
 
-    This is a notebook demonstarting how to build a coding agent with web search & testing functionality in less than 200 lines with the only external dependency being `anthropic`. 
+    This is a notebook demonstarting how to build a coding agent with web search & code execution in less than 200 lines—the only external dependency being `anthropic`. 
 
     Our agent will be able to 
 
@@ -45,19 +45,19 @@ def _(mo):
         Start([Start]) --> UserInput[Get User Input]
         UserInput --> Claude[Send to Claude]
         Claude --> NeedsTools{Needs Tools?}
-    
+
         NeedsTools -->|No| ShowResponse[Show Response]
         NeedsTools -->|Yes| ExecuteTools[Execute Tools]
-    
+
         ExecuteTools --> SendResults[Send Results to Claude]
         SendResults --> Claude
-    
+
         ShowResponse --> UserInput
-    
+
         ExecuteTools -.-> Tools
     """)
 
-    mo.hstack([intro_paragraph.style({"max-width": "700px", "overflow-wrap": "normal"}), intro_flowchart], widths=[1,1])
+    mo.hstack([intro_paragraph.style({"max-width": "750px", "overflow-wrap": "normal"}), intro_flowchart], widths=[1.25,1])
 
     return
 
@@ -90,7 +90,7 @@ def _(mo):
     }
     ```
 
-    We'll use shorter tools, included in Claude for this demo
+    We'll use tools built-in to Claude, which don't require JSON schema definitions, but do have a few other charateristics
     """
     )
     return
@@ -103,13 +103,12 @@ def _(mo):
 
     Claude comes with a set of predefined tools that require much shorter definitions: [_Text Editor_](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/text-editor-tool), [_Web Search_](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/web-search-tool), and [_Bash_](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/bash-tool). 
 
-    As it would turn out, those are the only tools we'll need for this demonstration. We start with some imports and tool definitions
+    As it would turn out, those are the only tools we'll need for this demonstration. We start with some imports and tool definitions.
+
+    Setting web search `max_uses` to 5 ensures our agent doesn't enter a research loop (this happens to humans, too)
     """)
-    return (intro_tool_text,)
 
-
-@app.cell
-def _(intro_tool_text, load_dotenv, mo, os):
+    imports_code = """
     load_dotenv()
 
     ANTHROPIC_MODEL = "claude-sonnet-4-0"
@@ -123,7 +122,27 @@ def _(intro_tool_text, load_dotenv, mo, os):
         {"type": "web_search_20250305", "name": "web_search", "max_uses": 5},
         {"type": "bash_20250124", "name": "bash"},
     ]
-    mo.hstack([intro_tool_text.style({"max-width": "650px", "overflow-wrap": "normal"}), mo.show_code().style({"max-width": "650px", "overflow-wrap": "normal"})])
+    """
+
+    mo.hstack([intro_tool_text.style({"max-width": "650px", "overflow-wrap": "normal"}), mo.ui.code_editor(imports_code, disabled=True).style({"max-width": "650px", "overflow-wrap": "normal"})], widths="auto")
+    return
+
+
+@app.cell
+def _(load_dotenv, os):
+    load_dotenv()
+
+    ANTHROPIC_MODEL = "claude-sonnet-4-0"
+    ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+
+    if not ANTHROPIC_API_KEY:
+        raise ValueError("ANTHROPIC_API_KEY must be set")
+
+    ANTHROPIC_TOOLS = [
+        {"type": "text_editor_20250728", "name": "str_replace_based_edit_tool"},
+        {"type": "web_search_20250305", "name": "web_search", "max_uses": 5},
+        {"type": "bash_20250124", "name": "bash"},
+    ]
     return ANTHROPIC_API_KEY, ANTHROPIC_MODEL, ANTHROPIC_TOOLS
 
 
@@ -131,15 +150,37 @@ def _(intro_tool_text, load_dotenv, mo, os):
 def _(Path, mo):
     prompting = """
     ## Prompting
-    Now, we'll take a look at our system prompt:
+    Now, we'll take a look at our prompt—it's recommended that the system prompt _only_ contain the [model's role](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/system-prompts). 
+
+    We split the prompt in our code and load only the `role` tag, the rest is in the first user message.
 
     Using [best practices](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices#example-formatting-preferences), for prompts helps with tool execution and reasoning
 
-    - Define prompt blocks in XML tags
-    - Use explicit instructions and language
-    - Build context around the task and clearly define the role of the agent
-    - Leverage thinking with `<thinking_process>`
-    - Define tool use best practices to ensure parallel tool calls and proper work checking
+    ### XML
+    We define prompt blocks in XML tags for structure and interpretability by the model.
+
+    This is a best practice that I've found useful in my own projects. A nice side effect
+    is that prompts are more human-readible, too.
+
+    ### Context & role
+
+    We build context around the task and clearly define the role of the agent, 
+
+    ### Instructions
+
+    We use explicit, declarative instructions on exactly how the model should perform a given task.
+    This includes the steps the model should take on each turn.
+
+    ### Thinking
+    Using the `<thinking_process>` block, we encourage the model to think through each problem.
+
+    This is also known as ["chain of thought"](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/chain-of-thought#example-writing-donor-emails-guided-cot). 
+
+    ### Tool use
+
+    We define tool use best practices to ensure parallel tool calls and proper work checking.
+
+    By default, parallel tool use is enabled, but [explicit prompts](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/implement-tool-use#maximizing-parallel-tool-use) can maximize parallel use.
     """
     prompt = Path("prompts/code_editor_fix.md").read_text()
     mo.hstack(
@@ -147,7 +188,7 @@ def _(Path, mo):
             mo.md(prompting).style({"max-width": "650px", "overflow-wrap": "normal"}),
                 mo.ui.code_editor(value=prompt, language="xml", disabled=True).style({"max-width": "650px", "overflow-wrap": "normal"}),
             ],
-        widths=[1,1]
+        widths="auto"
         )
 
     return
@@ -245,7 +286,7 @@ def _(Path, mo):
     - Adding an `is_error` [property to the response](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/implement-tool-use#troubleshooting-errors), which we can then pass to Claude
     - Using proper try / except logic with detailed logging for the agent
 
-    For this simple implementation, we only log errors. You could imagine wrapping these `ifs` with retry logic as suitible for your agent.
+    For this implementation, we only log errors. You could imagine wrapping these `ifs` with retry logic as suitible for your agent.
     """)
 
     split_tool_example = """def execute_tool(tool_name: str, tool_input: dict) -> dict:"""
@@ -264,25 +305,28 @@ def _(Path, mo, split_main):
     Now, we'll take a look at our agent:
 
     /// admonition | Heads up
-    This code is used for the CLI, which is simpler and easier to follow. This has been adapted for the Marimo chat interface below.
-
+    This code is used for the CLI, which is simpler and easier to follow.
+    Code in this notebook has been adapted for Marimo chat.
     ///
 
-    The agent is a simple nested `While` that handles different cases.
+    The agent is a nested `While` that handles different cases.
 
-    First, we initialize the anthropic client. It's important to note that we're caching the system prompt, which is quite long. Since this is sent with every message, we get cost savings during the cache window (5m by default)
+    First, we initialize the anthropic client. It's important to note that we're caching the system prompt & first message, which is quite long. 
+
+    Since this is sent with every message, we get cost savings during the cache window (5m by default)
 
     ### Caching
 
     Prompt caching caches the _full prefix_ up to the cache point in the following order: **tools**, **system**, **messages**.
 
-    That means our cache point in the system prompt with _also_ cache tool use.
+    That means our cache point caches: the system prompt, tool use, & the first message.
 
     ### Stop reasons
 
     Next, we handle `stop_reasons`, which is the client's way of communicating why the chat ended.
 
     A best practice is to implement [robust stop reason handling](https://docs.anthropic.com/en/api/handling-stop-reasons).
+    We keep handling short for our demo, but we recommend handlign _all_ possible reasons.
 
     ### Responses
 
@@ -291,7 +335,9 @@ def _(Path, mo, split_main):
 
     ### Tools
 
-    If tools were requested, we make conditional calls to our executor function by [extracting relevant details](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/implement-tool-use#handling-results-from-client-tools)
+    If tools were requested, we make conditional calls to our executor function by [extracting relevant details](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/implement-tool-use#handling-results-from-client-tools).
+
+    You might notice our web search handling differs from the string replace & bash tools. That's because web search is a **server** tool with a [different output structure](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/implement-tool-use#handling-results-from-server-tools).
 
     ### Response
 
@@ -299,7 +345,8 @@ def _(Path, mo, split_main):
 
     This `while` loop makes another good structure for top-level retries or error handling logic. 
 
-    We simply raise an execption, but you could imagine some number of more complex iterations.
+    We simply raise an execption, but you could imagine some number of more complex iterations. 
+    Messages and tool results are tracked through message blocks, returned to the client.
     """)
 
 
@@ -307,7 +354,7 @@ def _(Path, mo, split_main):
 
 
 
-    mo.hstack([agent_text.style({"max-width": "650px", "overflow-wrap": "normal"}), mo.ui.code_editor(value=agent, language="python", disabled=True, show_copy_button=True).style({"max-width": "650px", "overflow": "auto"}),], widths="equal")
+    mo.hstack([agent_text.style({"max-width": "650px"}), mo.ui.code_editor(value=agent, language="python", disabled=True, show_copy_button=True).style({"max-width": "650"}),], widths=[1,1])
 
 
     return
