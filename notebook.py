@@ -87,6 +87,7 @@ def _(handle_message, input_key, mo):
     You may enter your api key in `.env` if run locally, or here if on the web.
 
     Type `/` to run a sample prompt, some of my favorites are:
+    
     - "Research new techniques in python 3.13 and write a simple file demonstrating one"
     - "Write a simple file that prints the current time"
     - "Help me fix the broken file broken_file.py"
