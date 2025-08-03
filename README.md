@@ -84,3 +84,15 @@ The agent uses a simple loop:
 
 - Python 3.13+
 - Anthropic API key
+
+## Technical approach and key architectural decisions
+
+## Why this demonstration
+
+## How this helps developers understand Claude's potential
+
+## What makes builders want to learn more
+
+## How Claude was used in creating this demo
+
+## Future improvements
