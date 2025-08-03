@@ -6,19 +6,19 @@ You can find an interactive version at https://claude-codes.replit.app
 
 ```mermaid
 flowchart TD
-        Start([Start]) --> UserInput[Get User Input]
-        UserInput --> Claude[Send to Claude]
-        Claude --> NeedsTools{Needs Tools?}
+   Start([Start]) --> UserInput[Get User Input]
+   UserInput --> Claude[Send to Claude]
+   Claude --> NeedsTools{Needs Tools?}
 
-        NeedsTools -->|No| ShowResponse[Show Response]
-        NeedsTools -->|Yes| ExecuteTools[Execute Tools]
+   NeedsTools -->|No| ShowResponse[Show Response]
+   NeedsTools -->|Yes| ExecuteTools[Execute Tools]
 
-        ExecuteTools --> SendResults[Send Results to Claude]
-        SendResults --> Claude
+   ExecuteTools --> SendResults[Send Results to Claude]
+   SendResults --> Claude
 
-        ShowResponse --> UserInput
+   ShowResponse --> UserInput
 
-        ExecuteTools -.-> Tools
+   ExecuteTools -.-> Tools
 ```
 
 ## Quick start
