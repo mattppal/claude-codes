@@ -31,9 +31,9 @@ flowchart TD
    uv sync
 
    # Option 2: Without uv
-   python -m venv .venv
+   python3 -m venv .venv
    source .venv/bin/activate # On Windows: .venv\Scripts\activate
-   pip install uv
+   pip3 install uv
    uv sync
    ```
 
