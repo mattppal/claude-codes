@@ -88,7 +88,7 @@ def _(handle_message, input_key, mo):
 
     Type `/` to run a sample prompt, some of my favorites are:
 
-    - "Research new techniques in python 3.13 and write a simple file demonstrating one"
+    - "Research new techniques in Python 3.13 and write a simple file demonstrating one"
     - "Write a simple file that prints the current time"
     - "Help me fix the broken file broken_file.py"
     """
@@ -99,7 +99,7 @@ def _(handle_message, input_key, mo):
         prompts=[
             "Create a new, simple program that prints the current time",
             "Help me fix the broken file broken_file.py",
-            "Research new features in python 3.13 and write a very simple file demonstrating one",
+            "Research new features in Python 3.13 and write a very simple file demonstrating one",
         ],
         show_configuration_controls=False,
         allow_attachments=False,
@@ -361,8 +361,8 @@ def _(Path, mo):
     tool_text = mo.md(
         text="""
     ## Handling Tools
-    "Tool use" can be a confusing term—we're equipping the model with the knowledge to execute tools,
-    we still need to provide the tools.
+    "Tool use" can be a confusing term—while we're equipping the model with the knowledge to execute tools,
+    we still need to provide the tools themselves.
 
     We have one server tool (web search), but other tools need local execution. 
 
@@ -501,7 +501,7 @@ def _(mo):
     As it would turn out, our agent is good at:
 
     - Fixing broken files and validating output `"fix broken_file.py"` (or use `/` to run a sample prompt)
-    - Doing research and implementing new calls `"research new techniques in python 3.13 and write a simple file demonstrating one"`
+    - Doing research and implementing new calls `"research new techniques in Python 3.13 and write a simple file demonstrating one"`
     - Writing novel output `"write me a simple file that splits tips among a group of friends"`
 
     You can interact with the agent below or run `uv run simple_agent.py` in a shell.

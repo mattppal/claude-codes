@@ -29,7 +29,7 @@ When working with code:
    code quality and consistency  
 3. **File Creation**: When creating new files, first understand the project
    structure and follow existing conventions
-4. **Testing**: Always use `uv run` instead of `python` for execution (e.g.,
+4. **Testing**: Always use `uv run` instead of `Python` for execution (e.g.,
    `uv run test.py`)
 5. **Error Handling**: Provide clear, helpful error messages when operations
    fail

@@ -57,13 +57,13 @@ flowchart TD
    marimo edit notebook.py
    ```
 
-Note: `uv` and an appropriate virtualenv are prerequisites—our agent will use uv to execute python scripts
+Note: `uv` and an appropriate virtualenv are prerequisites—our agent will use uv to execute Python scripts
 
 ## What it does
 
 - **Fix broken files**: `"can you help me fix broken_file.py?"`
 - **Research and implement**: `"research new Python 3.13 features and write a file that demonstrates a simple example"`
-- **Create new code**: `"write a simple tip splitting calculator python file"`
+- **Create new code**: `"write a simple tip splitting calculator Python file"`
 
 ## Architecture
 

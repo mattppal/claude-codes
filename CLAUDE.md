@@ -10,13 +10,15 @@ This is a coding agent demonstration project that shows how to build an AI codin
 
 The project consists of two main implementations:
 
-- **`simple_agent.py`**: CLI version of the coding agent with a command-line interface
+- **`simple_agent.py`**: CLI version of the coding agent with a command-line interface (~200 lines)
 - **`notebook.py`**: Marimo notebook version that provides an interactive web interface and documentation
 
 Both implementations follow the same core pattern:
 1. **Agent Loop**: Continuous while loop handling user input
-2. **Tool Execution**: Local tool router (`execute_tool()`) that handles file operations and bash commands
+2. **Tool Execution**: Uses Anthropic's built-in tools (text editor, web search, bash) plus local tool router for file operations
 3. **Message Management**: Anthropic API integration with proper tool use and caching
+
+Interactive version available at: https://claude-codes.replit.app
 
 ### Key components
 
@@ -31,8 +33,11 @@ Both implementations follow the same core pattern:
 # Run CLI agent (requires ANTHROPIC_API_KEY in .env)
 uv run simple_agent.py
 
-# Run Marimo notebook interface
-uv run marimo run notebook.py
+# Run Marimo notebook interface (interactive)
+marimo run notebook.py
+
+# Edit Marimo notebook
+marimo edit notebook.py
 ```
 
 ### Dependencies management
@@ -45,7 +50,7 @@ uv add package-name
 ```
 
 ### Python execution
-- Always use `uv run` instead of `python` for execution (as specified in public/instructions.md)
+- Always use `uv run` instead of `Python` for execution (as specified in public/instructions.md)
 - Project requires Python >=3.13
 
 ## Environment setup
@@ -54,21 +59,27 @@ Required environment variables:
 - `ANTHROPIC_API_KEY`: Your Anthropic API key
 - `ANTHROPIC_MODEL`: Optional, defaults to "claude-sonnet-4-0"
 
-Create a `.env` file in the project root with these variables.
+Setup:
+1. Copy the example environment file: `cp .env.example .env`
+2. Add your Anthropic API key to the `.env` file
 
 ## File structure
 
+- `simple_agent.py`: Main CLI agent implementation
+- `notebook.py`: Marimo notebook version with interactive interface and documentation
+- `pyproject.toml`: Project dependencies and configuration
 - `public/instructions.md`: System prompt and instructions for the agent
 - `public/broken_file.py`: Example broken file for testing agent capabilities
 - `public/claude.png`: Logo used in notebook interface
-- `layouts/notebook.slides.json`: Notebook layout configuration
+- `public/head.html`: HTML head content for notebook
+- `.env.example`: Template environment file
 
 ## Agent capabilities
 
 The coding agent is designed to:
-- Fix broken Python files and validate output
-- Research new techniques and implement examples
-- Create novel code implementations
+- **Fix broken files**: "can you help me fix broken_file.py?"
+- **Research and implement**: "research new Python 3.13 features and write a file that demonstrates a simple example"
+- **Create new code**: "write a simple tip splitting calculator Python file"
 - Handle file operations (view, create, edit)
 - Execute bash commands with timeout protection
 - Search the web for up-to-date information
@@ -81,10 +92,12 @@ The coding agent is designed to:
 - Implements chain-of-thought reasoning in `<thinking_process>` blocks
 
 ### Tool use best practices
+- Uses Anthropic's built-in tools: text editor, web search, bash
 - Parallel tool execution when possible
 - Structured error responses with detailed logging
 - Timeout protection for bash commands (30s default)
 - Proper file path handling with pathlib
+- Web search limited to 5 uses to prevent research loops
 
 ### Caching strategy
 - Caches tools, system prompt, and first user message
