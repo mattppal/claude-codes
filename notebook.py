@@ -76,6 +76,52 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
+def _(handle_message, input_key, mo):
+    chat_text = mo.md(
+        """
+    ## Let's Chat
+    /// admonition | Heads up
+    Marimo does not yet support multiple messages or message streaming for dynamic visualization of tool calls. To visualize, use `uv run simple_agent.py` in your terminal.
+    ///
+
+    You may enter your api key in `.env` if run locally, or here if on the web.
+    """
+    )
+
+    chat = mo.ui.chat(
+        handle_message,
+        prompts=[
+            "Create a new, simple program that prints the current time",
+            "Help me fix the broken file broken_file.py",
+            "Research new features in python 3.13 and write a very simple file demonstrating one",
+        ],
+        show_configuration_controls=False,
+        allow_attachments=False,
+    )
+
+    mo.vstack(
+        [
+            chat_text.style({"max-width": "650", "overflow-wrap": "normal"}),
+            input_key,
+            chat.style({"max-width": "650", "overflow-wrap": "normal"}),
+        ]
+    )
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(
+        r"""
+    You just saw our ~200 line agent in action.
+
+    Now, let's learn about how it's built.
+    """
+    )
+    return
+
+
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
@@ -103,7 +149,7 @@ def _(mo):
     }
     ```
 
-    We'll use tools built-in to Claude, which don't require JSON schema definitions, but do have different characteristics
+    We can use tools built-in to the Anthropic API, which don't require JSON schema definitions, but do have different characteristics
     """
     )
     return
@@ -143,7 +189,7 @@ def _(mo):
         [
             intro_tool_text.style({"max-width": "650px", "overflow-wrap": "normal"}),
             mo.ui.code_editor(imports_code, disabled=True).style(
-                {"max-width": "650px", "overflow-wrap": "normal"}
+                {"max-width": "600px", "overflow-wrap": "normal"}
             ),
         ],
         widths="auto",
@@ -173,15 +219,15 @@ def _(Path, mo):
     We build context around the task and clearly define the role of the agent.
     We include the `role` tag in the system prompt and pass the rest of the prompt as the first user message.
 
-    ### Instructions
-
-    We use explicit, declarative instructions on exactly how the model should perform a given task.
-    This includes the steps the model should take on each turn.
-
     ### Thinking
     Using the `<thinking_process>` block, we encourage the model to think through each problem.
 
     This is also known as ["chain of thought"](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/chain-of-thought#example-writing-donor-emails-guided-cot). 
+
+    ### Instructions
+
+    We use explicit, declarative instructions on exactly how the model should perform a given task.
+    This includes the steps the model should take on each turn.
 
     ### Tool use
 
@@ -192,9 +238,9 @@ def _(Path, mo):
     prompt = Path("./public/instructions.md").read_text()
     mo.hstack(
         [
-            mo.md(prompting).style({"max-width": "650px", "overflow-wrap": "normal"}),
+            mo.md(prompting),
             mo.ui.code_editor(value=prompt, language="xml", disabled=True).style(
-                {"max-width": "700px", "overflow-wrap": "normal"}
+                {"max-width": "600px", "overflow-wrap": "normal"}
             ),
         ],
         widths="auto",
@@ -309,7 +355,10 @@ def _(Path, mo):
     tool_text = mo.md(
         text="""
     ## Handling Tools
-    **Important:** We have one server tool (web search), but other tools need local execution. 
+    "Tool use" can be a confusing term—we're equipting the model with the knowledge to execute tools,
+    we still need to provide the tools.
+
+    We have one server tool (web search), but other tools need local execution. 
 
     This function defines a group of tool actions that we'll give access to our model to execute.
 
@@ -321,9 +370,20 @@ def _(Path, mo):
 
     - Adding an `is_error` [property to the response](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/implement-tool-use#troubleshooting-errors), which we can then pass to Claude
     - Using proper try / except logic with detailed logging for the agent
-    - Ensuring reasonable timeouts for our bash tool
 
     For this implementation, we only log errors. You could add retry logic as needed.
+
+    #### View
+
+    Be sure to handle both dirctories and files
+
+    #### String replace
+
+    Best practice: replace _only_ the content that needs to be altered, rather than the entire file.
+
+    #### Bash
+
+    Best practice: ensure reasonable timeouts for our bash tool and return both `stdout` & `stderr` to our agent
     """
     )
 
@@ -412,8 +472,7 @@ def _(Path, mo, split_main):
 
     agent = (
         split_main
-        + "\n\n"
-        + Path("simple_agent.py").read_text().split(split_main)[1].strip()
+        + Path("simple_agent.py").read_text().split(split_main)[1]
     )
 
     mo.hstack(
@@ -436,7 +495,7 @@ def _(mo):
         r"""
     ## Running our agent
 
-    Our agent is good at:
+    As it would turn out, our agent is good at:
 
     - Fixing broken files and validating output `"fix broken_file.py"` (or use `/` to run a sample prompt)
     - Doing research and implementing new calls `"research new techniques in python 3.13 and write a simple file demonstrating one"`
@@ -625,42 +684,6 @@ def _(
             return f"Error: {str(e)}"
 
     return (handle_message,)
-
-
-@app.cell(hide_code=True)
-def _(handle_message, input_key, mo):
-    chat_text = mo.md(
-        """
-    ## Let's Chat
-    We can implement a modified version for Marimo notebooks that returns the full output in a chat interface, with progressive tool execution updates
-
-    /// admonition | Heads up
-    Marimo does not yet support multiple messages or message streaming for dynamic visualization of tool calls. To visualize, use `uv run simple_agent.py` in your terminal.
-    ///
-
-    You may enter your api key in `.env` if run locally, or here if on the web.
-    """
-    )
-
-    chat = mo.ui.chat(
-        handle_message,
-        prompts=[
-            "Create a new, simple program that prints the current time",
-            "Help me fix the broken file broken_file.py",
-            "Research new features in python 3.13 and write a very simple file demonstrating one",
-        ],
-        show_configuration_controls=False,
-        allow_attachments=False,
-    )
-
-    mo.vstack(
-        [
-            chat_text.style({"max-width": "650", "overflow-wrap": "normal"}),
-            input_key,
-            chat.style({"max-width": "650", "overflow-wrap": "normal"}),
-        ]
-    )
-    return
 
 
 @app.cell(hide_code=True)
