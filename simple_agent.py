@@ -19,6 +19,7 @@ ANTHROPIC_TOOLS = [
     {"type": "bash_20250124", "name": "bash"},
 ]
 
+
 def execute_tool(tool_name: str, tool_input: dict) -> dict:
     """Execute a tool and return structured result with error handling."""
     try:
@@ -131,7 +132,7 @@ if __name__ == "__main__":
             {"role": "user", "content": user_input},
         ]
 
-         while True:
+        while True:
             # TODO: delegate—haiku for simple tasks, opus for complex
             response = client.messages.create(
                 model=ANTHROPIC_MODEL,

@@ -4,6 +4,23 @@ A simple coding agent built with Claude that can view/edit files, search the web
 
 You can find an interactive version at https://claude-codes.replit.app
 
+```mermaid
+flowchart TD
+        Start([Start]) --> UserInput[Get User Input]
+        UserInput --> Claude[Send to Claude]
+        Claude --> NeedsTools{Needs Tools?}
+
+        NeedsTools -->|No| ShowResponse[Show Response]
+        NeedsTools -->|Yes| ExecuteTools[Execute Tools]
+
+        ExecuteTools --> SendResults[Send Results to Claude]
+        SendResults --> Claude
+
+        ShowResponse --> UserInput
+
+        ExecuteTools -.-> Tools
+```
+
 ## Quick start
 
 1. **Create virtual environment and install dependencies**:

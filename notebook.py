@@ -4,7 +4,6 @@ __generated_with = "0.14.16"
 app = marimo.App(
     width="medium",
     app_title="Claude Code(s)",
-    layout_file="layouts/notebook.slides.json",
     html_head_file="head.html",
 )
 
@@ -245,8 +244,7 @@ def _(Path, mo):
     prompt = Path("./public/instructions.md").read_text()
     mo.hstack(
         [
-            mo.md(prompting).style(
-                {"max-width": "600px", "overflow-wrap": "normal"}),
+            mo.md(prompting).style({"max-width": "600px", "overflow-wrap": "normal"}),
             mo.ui.code_editor(value=prompt, language="xml", disabled=True).style(
                 {"max-width": "600px", "overflow-wrap": "normal"}
             ),
@@ -478,10 +476,7 @@ def _(Path, mo, split_main):
     """
     )
 
-    agent = (
-        split_main
-        + Path("simple_agent.py").read_text().split(split_main)[1]
-    )
+    agent = split_main + Path("simple_agent.py").read_text().split(split_main)[1]
 
     mo.hstack(
         [
