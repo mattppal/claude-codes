@@ -69,7 +69,7 @@ def execute_tool(tool_name: str, tool_input: dict) -> dict:
             content = path.read_text()
             if old_str not in content:
                 return {
-                    "content": f"Error: Str '{old_str}' not found in {path}",
+                    "content": f"Error: String '{old_str}' not found in {path}",
                     "is_error": True,
                 }
 

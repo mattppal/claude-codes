@@ -206,7 +206,7 @@ def _(Path, mo):
 
     We split the prompt in our code and load only the `role` tag, the rest is in the first user message.
 
-    Using [best practices](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices#example-formatting-preferences), for prompts helps with tool execution and reasoning.
+    Using [best practices](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices#example-formatting-preferences) for prompts helps with tool execution and reasoning.
 
     ### XML
     We define prompt blocks in XML tags for structure and interpretability by the model.
@@ -355,7 +355,7 @@ def _(Path, mo):
     tool_text = mo.md(
         text="""
     ## Handling Tools
-    "Tool use" can be a confusing term—we're equipting the model with the knowledge to execute tools,
+    "Tool use" can be a confusing term—we're equipping the model with the knowledge to execute tools,
     we still need to provide the tools.
 
     We have one server tool (web search), but other tools need local execution. 
@@ -375,7 +375,7 @@ def _(Path, mo):
 
     #### View
 
-    Be sure to handle both dirctories and files
+    Be sure to handle both directories and files
 
     #### String replace
 
@@ -439,7 +439,7 @@ def _(Path, mo, split_main):
 
     That means our cache point caches the system prompt, tools, and first message.
 
-    Since this is sent with every message, we get cost savings during the cache window (5 minutes by default)
+    Since this is sent with every message, we get cost savings during the cache window (5 minutes by default).
 
     ### Stop reasons
 
