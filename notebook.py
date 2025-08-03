@@ -4,6 +4,7 @@ __generated_with = "0.14.16"
 app = marimo.App(
     width="medium",
     app_title="Claude Code(s)",
+    layout_file="layouts/notebook.slides.json",
     html_head_file="head.html",
 )
 
@@ -87,7 +88,7 @@ def _(handle_message, input_key, mo):
     You may enter your api key in `.env` if run locally, or here if on the web.
 
     Type `/` to run a sample prompt, some of my favorites are:
-    
+
     - "Research new techniques in python 3.13 and write a simple file demonstrating one"
     - "Write a simple file that prints the current time"
     - "Help me fix the broken file broken_file.py"
@@ -244,7 +245,8 @@ def _(Path, mo):
     prompt = Path("./public/instructions.md").read_text()
     mo.hstack(
         [
-            mo.md(prompting),
+            mo.md(prompting).style(
+                {"max-width": "600px", "overflow-wrap": "normal"}),
             mo.ui.code_editor(value=prompt, language="xml", disabled=True).style(
                 {"max-width": "600px", "overflow-wrap": "normal"}
             ),
