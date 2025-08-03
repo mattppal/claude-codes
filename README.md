@@ -2,6 +2,8 @@
 
 A simple coding agent built with Claude that can view/edit files, search the web, and execute bash commands—all in ~200 lines.
 
+You can find an interactive version at https://claude-codes.replit.app
+
 ```mermaid
 flowchart TD
    Start([Start]) --> UserInput[Get User Input]
@@ -31,7 +33,7 @@ flowchart TD
    # Option 2: Poetry
    python -m venv .venv
    source .venv/bin/activate # On Windows: .venv\Scripts\activate
-   poetry install
+   pip install poetry && poetry install
 
    # Option 3: Standard venv + pip
    python -m venv .venv
@@ -39,9 +41,9 @@ flowchart TD
    pip install -e .
    ```
 
-2. **Setup environment**:
+2. **Setup environment & add API key**:
    ```bash
-   echo "ANTHROPIC_API_KEY=your_key_here" > .env
+   cp .env.example .env
    ```
 
 3. **Run the CLI agent**:
@@ -51,7 +53,11 @@ flowchart TD
 
 4. **Or run the interactive notebook**:
    ```bash
-   uv run marimo run notebook.py
+   # To run
+   marimo run notebook.py
+
+   # To edit
+   marimo edit notebook.py
    ```
 
 ## What it does
