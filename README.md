@@ -18,11 +18,6 @@ You can find an interactive version at https://claude-codes.replit.app
    source .venv/bin/activate # On Windows: .venv\Scripts\activate
    pip install uv
    uv sync
-
-   # Option 3: I hate uv
-   python3 -m venv .venv
-   source .venv/bin/activate # On Windows: .venv\Scripts\activate
-   pip install -e . 
    ```
 
 2. **Setup environment & add API key**:
@@ -44,6 +39,8 @@ You can find an interactive version at https://claude-codes.replit.app
    # To edit
    marimo edit notebook.py
    ```
+
+Note: `uv` and an appropriate virtualenv are prerequisites—our agent will use uv to execute python scripts
 
 ## What it does
 
