@@ -21,5 +21,4 @@ wheels/
 .env.test.local
 .env.production.local
 
-broken_file.py
 __marimo__/
