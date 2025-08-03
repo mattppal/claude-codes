@@ -19,17 +19,6 @@ ANTHROPIC_TOOLS = [
     {"type": "bash_20250124", "name": "bash"},
 ]
 
-
-def restore_broken_file():
-    if Path("broken_file.py").exists():
-        Path("broken_file.py").unlink()
-        (
-            Path("./broken_file.py").write_text(
-                Path("./public/broken_file.py").read_text()
-            )
-        )
-
-
 def execute_tool(tool_name: str, tool_input: dict) -> dict:
     """Execute a tool and return structured result with error handling."""
     try:
@@ -112,7 +101,6 @@ def execute_tool(tool_name: str, tool_input: dict) -> dict:
 
 
 if __name__ == "__main__":
-    restore_broken_file()
     # Load and parse prompt
     prompt_content = Path("./public/instructions.md").read_text()
 
@@ -143,7 +131,7 @@ if __name__ == "__main__":
             {"role": "user", "content": user_input},
         ]
 
-        while True:
+         while True:
             # TODO: delegate—haiku for simple tasks, opus for complex
             response = client.messages.create(
                 model=ANTHROPIC_MODEL,
@@ -223,4 +211,4 @@ if __name__ == "__main__":
                     if hasattr(block, "text"):
                         print(block.text)
                 if response.stop_reason in ["end_turn"]:
-                    user_input = input("💬 User: ")
+                    break  # Break out of inner loop to restart conversation
