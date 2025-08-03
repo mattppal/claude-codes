@@ -1,5 +1,5 @@
 [project]
-name = "coding-agent"
+name = "claude-codes"
 version = "0.1.0"
 description = "A simple coding agent"
 readme = "README.md"
