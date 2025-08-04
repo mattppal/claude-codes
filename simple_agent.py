@@ -2,6 +2,7 @@ import subprocess
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from shutil import copyfile
 
 import anthropic
 
@@ -102,6 +103,9 @@ def execute_tool(tool_name: str, tool_input: dict) -> dict:
 
 
 if __name__ == "__main__":
+    copyfile(
+        "./public/broken_file.py", "./broken_file.py"
+    )  # copyfile always overwrites the destination if it exists
     # Load and parse prompt
     prompt_content = Path("./public/instructions.md").read_text()
 

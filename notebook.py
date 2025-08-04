@@ -1,3 +1,4 @@
+from shutil import copyfile
 import marimo
 
 __generated_with = "0.14.16"
@@ -541,9 +542,13 @@ def _(
     anthropic,
     execute_tool,
 ):
+    from shutil import copyfile
+
     def handle_message(messages, config):
         """Handle incoming chat messages and return AI response."""
         if not messages:
+            # copyfile always overwrites the destination if it exists
+            copyfile("./public/broken_file.py", "./broken_file.py")
             return "Hello! I'm your AI coding assistant. How can I help you today?"
 
         try:
@@ -687,48 +692,6 @@ def _(
             return f"Error: {str(e)}"
 
     return (handle_message,)
-
-
-@app.cell(hide_code=True)
-def _(Path, mo):
-    # Cleanup cell: Remove all Python files except notebook.py and simple_agent.py
-    # Then copy broken_file.py from prompts to root
-    def cleanup_files():
-        root_dir = Path(".")
-        kept_files = {"notebook.py", "simple_agent.py"}
-
-        # Remove all .py files except the ones we want to keep
-        for py_file in root_dir.glob("*.py"):
-            if py_file.name not in kept_files:
-                py_file.unlink()
-                print(f"Removed: {py_file.name}")
-
-        # Copy broken_file.py from prompts to root
-        broken_file_source = Path("public/broken_file.py")
-        broken_file_dest = Path("broken_file.py")
-
-        if broken_file_source.exists():
-            broken_file_dest.write_text(broken_file_source.read_text())
-            print(f"Copied {broken_file_source} to {broken_file_dest}")
-        else:
-            print(f"Warning: {broken_file_source} not found")
-
-    cleanup_button = mo.ui.button(
-        label="🧹 Cleanup Python Files", on_click=lambda _: cleanup_files()
-    )
-
-    mo.md(
-        f"""
-    ## File Cleanup
-
-    This will remove all `.py` files in the root directory except: `notebook.py` & `simple_agent.py`
-
-    Then copy `public/broken_file.py` to the root directory.
-
-    {cleanup_button}
-    """
-    )
-    return
 
 
 @app.cell
