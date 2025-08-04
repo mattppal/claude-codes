@@ -503,7 +503,7 @@ def _(load_dotenv, mo):
         for f in Path(".").glob("*.py")
         if f.name not in {"notebook.py", "simple_agent.py"}
     ]
-    copyfile("./public/broken_file.py", "./broken_file.py")
+    d = copyfile("./public/broken_file.py", "./broken_file.py")
     return ANTHROPIC_MODEL, ANTHROPIC_TOOLS, input_key
 
 
