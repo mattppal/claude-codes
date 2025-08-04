@@ -18,7 +18,7 @@ Both implementations follow the same core pattern:
 2. **Tool Execution**: Uses Anthropic's built-in tools (text editor, web search, bash) plus local tool router for file operations
 3. **Message Management**: Anthropic API integration with proper tool use and caching
 
-Interactive version available at: https://claude-codes.replit.app
+Interactive version available at: https://claude-codes.onrender.com/
 
 ### Key components
 

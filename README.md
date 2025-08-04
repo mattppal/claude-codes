@@ -2,7 +2,7 @@
 
 A simple coding agent built with Claude that can view/edit files, search the web, and execute bash commands—all in ~200 lines.
 
-You can find an interactive version at <https://claude-codes.replit.app>
+You can find an interactive version at <https://claude-codes.onrender.com/>
 
 ```mermaid
 flowchart TD
