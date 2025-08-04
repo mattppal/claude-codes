@@ -83,7 +83,7 @@ def _(handle_message, input_key, mo):
         """
     ## Let's Chat
     /// admonition | Heads up
-    Marimo does not yet support multiple messages or message streaming for dynamic visualization of tool calls. To visualize, use `uv run simple_agent.py` in your terminal.
+    Marimo does not yet support multiple messages or message streaming for dynamic visualization of tool calls, so responses take 20-30s. To visualize, clone the [repo](https://github.com/mattppal/claude-codes) and use `uv run simple_agent.py` in your terminal.
     ///
 
     You may enter your api key in `.env` if run locally, or here if on the web.
@@ -122,7 +122,6 @@ def _(mo):
     mo.md(
         r"""
     You just saw our ~200 line agent in action.
-
     Now, let's learn about how it's built.
     """
     )
