@@ -22,4 +22,4 @@ wheels/
 .env.production.local
 
 __marimo__/
-./broken_file.py
+broken_file.py
