@@ -496,6 +496,7 @@ def _(Path, mo, split_main):
 @app.cell
 def _(load_dotenv, mo):
     load_dotenv()
+    from shutil import copyfile
 
     input_key = mo.ui.text(label="Anthropic API key", kind="password")
 
@@ -506,6 +507,12 @@ def _(load_dotenv, mo):
         {"type": "web_search_20250305", "name": "web_search", "max_uses": 5},
         {"type": "bash_20250124", "name": "bash"},
     ]
+    [
+        f.unlink()
+        for f in Path(".").glob("*.py")
+        if f.name not in {"notebook.py", "simple_agent.py"}
+    ]
+    copyfile("./public/broken_file.py", "./broken_file.py")
     return ANTHROPIC_MODEL, ANTHROPIC_TOOLS, input_key
 
 
@@ -524,14 +531,11 @@ def _(
     anthropic,
     execute_tool,
 ):
-    from shutil import copyfile
-
     def handle_message(messages, config):
         """Handle incoming chat messages and return AI response."""
         if not messages:
             return "Hello! I'm your AI coding assistant. How can I help you today?"
         try:
-            copyfile("./public/broken_file.py", "./broken_file.py")
             client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
             # Load and parse prompt
