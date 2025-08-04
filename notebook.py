@@ -42,6 +42,8 @@ def _(mo):
     - Execute bash commands
 
     This notebook is adapted from the `simple_agent.py` file in the root directory of this project. You may find the full source on [Github](https://github.com/mattppal/claude-codes).
+
+    For a full video walkthrough, check out [this video](https://youtu.be/4ggPGH_-euo).
     """
     )
 
