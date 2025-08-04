@@ -259,15 +259,6 @@ def _(Path, mo):
 
 @app.cell
 def _(Path, subprocess):
-    def restore_broken_file():
-        if Path("broken_file.py").exists():
-            Path("broken_file.py").unlink()
-            (
-                Path("./broken_file.py").write_text(
-                    Path("./public/broken_file.py").read_text()
-                )
-            )
-
     def execute_tool(tool_name: str, tool_input: dict) -> dict:
         """Execute a tool and return structured result with error handling."""
         try:
