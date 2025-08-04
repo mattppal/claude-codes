@@ -493,24 +493,6 @@ def _(Path, mo, split_main):
 
 
 @app.cell
-def _(mo):
-    mo.md(
-        r"""
-    ## Running our agent
-
-    As it would turn out, our agent is good at:
-
-    - Fixing broken files and validating output `"fix broken_file.py"` (or use `/` to run a sample prompt)
-    - Doing research and implementing new calls `"research new techniques in Python 3.13 and write a simple file demonstrating one"`
-    - Writing novel output `"write me a simple file that splits tips among a group of friends"`
-
-    You can interact with the agent below or run `uv run simple_agent.py` in a shell.
-    """
-    )
-    return
-
-
-@app.cell
 def _(load_dotenv, mo):
     load_dotenv()
 
