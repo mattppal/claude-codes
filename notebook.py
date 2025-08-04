@@ -25,7 +25,7 @@ def _():
 def _(mo):
     intro_paragraph = mo.md(
         r"""
-    # <img src="public/claude.png" style="display: inline; max-height: 50px; margin: 0; border-radius: 0;" /> Claude Code(s)
+    # Claude Code(s)
 
     There are many coding agents, but how do they work? 
 
