@@ -1,4 +1,3 @@
-from shutil import copyfile
 import marimo
 
 __generated_with = "0.14.16"
@@ -547,11 +546,9 @@ def _(
     def handle_message(messages, config):
         """Handle incoming chat messages and return AI response."""
         if not messages:
-            # copyfile always overwrites the destination if it exists
-            copyfile("./public/broken_file.py", "./broken_file.py")
             return "Hello! I'm your AI coding assistant. How can I help you today?"
-
         try:
+            copyfile("./public/broken_file.py", "./broken_file.py")
             client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
             # Load and parse prompt
