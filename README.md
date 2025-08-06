@@ -142,7 +142,7 @@ while True:
 ## Files
 
 - `simple_agent.py` - CLI version
-- `public/instructions.md` - System prompt and instructions
+- `prompt.md` - System prompt and instructions
 
 ## Requirements
 
