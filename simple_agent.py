@@ -103,11 +103,7 @@ def execute_tool(tool_name: str, tool_input: dict) -> dict:
 
 
 if __name__ == "__main__":
-    copyfile(
-        "./public/broken_file.py", "./broken_file.py"
-    )  # copyfile always overwrites the destination if it exists
-    # Load and parse prompt
-    prompt_content = Path("./public/instructions.md").read_text()
+    prompt_content = Path("prompt.md").read_text()
 
     system_prompt = prompt_content[
         prompt_content.find("<role>") + 6 : prompt_content.find("</role>")
