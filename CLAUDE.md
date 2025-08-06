@@ -66,12 +66,7 @@ Setup:
 ## File structure
 
 - `simple_agent.py`: Main CLI agent implementation
-- `notebook.py`: Marimo notebook version with interactive interface and documentation
 - `pyproject.toml`: Project dependencies and configuration
-- `public/instructions.md`: System prompt and instructions for the agent
-- `public/broken_file.py`: Example broken file for testing agent capabilities
-- `public/claude.png`: Logo used in notebook interface
-- `public/head.html`: HTML head content for notebook
 - `.env.example`: Template environment file
 
 ## Agent capabilities
