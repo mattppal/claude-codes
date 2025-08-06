@@ -2,7 +2,6 @@
 
 A simple coding agent built with Claude that can view/edit files, search the web, and execute bash commands—all in ~200 lines.
 
-You can find an interactive version at <https://claude-codes.onrender.com/>
 
 ```mermaid
 flowchart TD
@@ -52,15 +51,6 @@ flowchart TD
    uv run simple_agent.py
    ```
 
-4. **Or run the interactive notebook**:
-
-   ```bash
-   # To run
-   marimo run notebook.py
-
-   # To edit
-   marimo edit notebook.py
-   ```
 
 Note: `uv` and an appropriate virtualenv are prerequisites—our agent will use uv to execute Python scripts
 
@@ -152,7 +142,6 @@ while True:
 ## Files
 
 - `simple_agent.py` - CLI version
-- `notebook.py` - Interactive Marimo notebook with documentation
 - `public/instructions.md` - System prompt and instructions
 
 ## Requirements
